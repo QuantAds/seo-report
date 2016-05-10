@@ -1,0 +1,20 @@
+SELECT
+    a.querydate,
+    a.searchquery,
+    SUM(a.impressions),
+    SUM(a.clicks),
+    c.impressions,
+    c.clicks
+FROM gsc.bseonly a
+LEFT JOIN (SELECT 
+    querydate,
+    searchquery,
+    SUM(impressions) impressions,
+    SUM(clicks) clicks
+FROM gsc.bseonly b GROUP BY b.querydate) c 
+    ON a.querydate = c.querydate 
+    AND a.searchquery = c.searchquery
+GROUP BY a.querydate
+ORDER BY a.impressions DESC
+LIMIT 0,100000
+;
