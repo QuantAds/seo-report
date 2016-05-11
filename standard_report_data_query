@@ -1,0 +1,42 @@
+SELECT
+    YEARWEEK(a.querydate,3) AS 'Year / Week',
+    SUM(a.impressions) AS 'Impressions',
+    SUM(a.clicks) AS 'Clicks',
+    ROUND(SUM(a.clicks)/SUM(a.impressions)*100,1) AS 'CTR(%)',
+    c.impressions AS 'Branded Impressions',
+    ROUND(c.impressions/SUM(a.impressions)*100,1) AS 'Branded Impressions Share',
+    c.clicks 'Branded Clicks',
+    ROUND(SUM(c.clicks)/SUM(c.impressions)*100,1) AS 'Branded CTR(%)',
+    ROUND(c.clicks/SUM(a.clicks)*100,1) AS 'Branded Clicks Share',
+    e.impressions AS 'Non branded impressions',
+    e.clicks AS 'Non branded clicks',
+    ROUND(SUM(e.clicks)/SUM(e.impressions)*100,1) AS 'Non-branded CTR(%)',
+    COUNT(DISTINCT(a.searchquery)) AS '#keywords',
+    ROUND(SUM(a.avgposition*a.impressions)/sum(a.impressions),1) AS 'Avg. rank',
+    brandkwcount AS '#branded keywords',
+    brandrank AS 'Avg. Branded rank',
+    nonbrandkwcount AS '#non-branded keywords',
+    nonbrandrank AS 'Avg. Non-branded rank'
+FROM gsc.bseonly a
+LEFT JOIN (SELECT 
+    YEARWEEK(querydate,3) yw,
+    SUM(impressions) impressions,
+    SUM(clicks) clicks,
+    ROUND(SUM(avgposition*impressions)/sum(impressions),1) brandrank,
+    COUNT(DISTINCT(searchquery)) brandkwcount
+FROM gsc.bseonly b WHERE searchquery LIKE '%only%' AND clientcountry = 'DK' GROUP BY YEARWEEK(b.querydate,3)) c 
+    ON YEARWEEK(a.querydate,3) = c.yw 
+LEFT JOIN (SELECT 
+    YEARWEEK(querydate,3) yw,
+    SUM(impressions) impressions,
+    SUM(clicks) clicks,
+    ROUND(SUM(avgposition*impressions)/sum(impressions),1) nonbrandrank,
+    COUNT(DISTINCT(searchquery)) nonbrandkwcount
+FROM gsc.bseonly d WHERE searchquery NOT LIKE '%only%' AND clientcountry = 'DK' GROUP BY YEARWEEK(d.querydate,3)) e 
+    ON YEARWEEK(a.querydate,3) = e.yw 
+WHERE
+	 clientcountry = 'DK'
+GROUP BY YEARWEEK(a.querydate,3) ASC
+#ORDER BY a.impressions DESC
+LIMIT 0,100000
+;
