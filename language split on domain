@@ -1,13 +1,19 @@
 #For when a domain handles more than one country (in this case 5) and the URLs can be clearly identified (i.e. in this case '%nl%' for dutch URLs)
+#Note that because of a migration data, this SQL is summing data from a specific date
 
 SELECT 
 	a.country, 
     ROUND(SUM(a.impressions),0),
     ROUND(IFNULL(nl.impressions,0),0) AS 'NL-urls',
+    ROUND(IFNULL(nl.impressions,0)/SUM(a.impressions)*100,1) AS 'NL-share',
     ROUND(IFNULL(de.impressions,0),0) AS 'DE-urls',
+    ROUND(IFNULL(de.impressions,0)/SUM(a.impressions)*100,1) AS 'DE-share',
     ROUND(IFNULL(uk.impressions,0),0) AS 'UK-urls',
+    ROUND(IFNULL(uk.impressions,0)/SUM(a.impressions)*100,1) AS 'UK-share',
     ROUND(IFNULL(be.impressions,0),0) AS 'BE-urls',
+    ROUND(IFNULL(be.impressions,0)/SUM(a.impressions)*100,1) AS 'BE-share',
     ROUND(IFNULL(fr.impressions,0),0) AS 'FR-urls',
+    ROUND(IFNULL(fr.impressions,0)/SUM(a.impressions)*100,1) AS 'FR-share',
     ROUND(SUM(a.impressions) - IFNULL(nl.impressions,0) - IFNULL(de.impressions,0) - IFNULL(uk.impressions,0) - IFNULL(be.impressions,0) - IFNULL(fr.impressions,0),0) AS 'Other URLs'
 FROM gsc.exact a
 LEFT JOIN (SELECT 
