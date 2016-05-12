@@ -1,0 +1,43 @@
+#For when a domain handles more than one country (in this case 5) and the URLs can be clearly identified (i.e. in this case '%nl%' for dutch URLs)
+
+SELECT 
+	a.country, 
+    ROUND(SUM(a.impressions),0),
+    ROUND(IFNULL(nl.impressions,0),0) AS 'NL-urls',
+    ROUND(IFNULL(de.impressions,0),0) AS 'DE-urls',
+    ROUND(IFNULL(uk.impressions,0),0) AS 'UK-urls',
+    ROUND(IFNULL(be.impressions,0),0) AS 'BE-urls',
+    ROUND(IFNULL(fr.impressions,0),0) AS 'FR-urls',
+    ROUND(SUM(a.impressions) - IFNULL(nl.impressions,0) - IFNULL(de.impressions,0) - IFNULL(uk.impressions,0) - IFNULL(be.impressions,0) - IFNULL(fr.impressions,0),0) AS 'Other URLs'
+FROM gsc.exact a
+LEFT JOIN (SELECT 
+    country,
+    SUM(impressions) impressions
+FROM gsc.exact b WHERE querydate > '2016-04-27' AND landingpage LIKE '%/nl/%' AND clientdomain = 'http-www-exact-com-' GROUP BY b.country) nl 
+    ON a.country = nl.country
+LEFT JOIN (SELECT 
+    country,
+    SUM(impressions) impressions
+FROM gsc.exact c WHERE querydate > '2016-04-27' AND landingpage LIKE '%/de/%' AND clientdomain = 'http-www-exact-com-' GROUP BY c.country) de 
+    ON a.country = de.country
+LEFT JOIN (SELECT 
+    country,
+    SUM(impressions) impressions
+FROM gsc.exact d WHERE querydate > '2016-04-27' AND landingpage LIKE '%/uk/%' AND clientdomain = 'http-www-exact-com-' GROUP BY d.country) uk 
+    ON a.country = uk.country
+LEFT JOIN (SELECT 
+    country,
+    SUM(impressions) impressions
+FROM gsc.exact e WHERE querydate > '2016-04-27' AND landingpage LIKE '%/be%/%' AND clientdomain = 'http-www-exact-com-' GROUP BY e.country) be 
+    ON a.country = be.country
+LEFT JOIN (SELECT 
+    country,
+    SUM(impressions) impressions
+FROM gsc.exact f WHERE querydate > '2016-04-27' AND landingpage LIKE '%/fr/%' AND clientdomain = 'http-www-exact-com-' GROUP BY f.country) fr
+    ON a.country = fr.country
+WHERE
+	querydate > '2016-04-27'
+	AND clientdomain = 'http-www-exact-com-'
+GROUP BY country
+ORDER BY sum(a.impressions) DESC
+;
