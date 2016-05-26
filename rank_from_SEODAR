@@ -1,0 +1,27 @@
+LOAD DATA LOCAL INFILE 'C:/temp/vila-rankings/20160526.tsv' INTO TABLE rank.bsevila
+CHARACTER SET latin1
+FIELDS terminated by '\t'
+LINES terminated by '\n'
+
+IGNORE 1 lines
+(domain,landingpage,rank,snippettext,snippettitle,metadescription,pagetitle,querystring)
+SET querydate = STR_TO_DATE('2016-05-26', '%Y-%m-%d'), clientdomain = 'http-vila-dk-'
+;
+
+DROP TABLE rank.bsevila;
+
+CREATE TABLE rank.bsevila (
+id MEDIUMINT NOT NULL AUTO_INCREMENT,
+domain VARCHAR(1024),
+landingpage VARCHAR(1024),
+rank INT(3),
+snippettext TEXT,
+snippettitle TEXT,
+metadescription TEXT,
+pagetitle TEXT,
+querystring VARCHAR(255),
+querydate DATE,
+clientdomain VARCHAR(255),
+PRIMARY KEY (id)
+) DEFAULT CHARACTER SET 'utf8mb4'
+;
