@@ -1,0 +1,21 @@
+SELECT 
+ week,
+    SUM(CASE WHEN pos = 1 THEN 1 ELSE 0 END) '1st',
+    SUM(CASE WHEN pos >= 2 AND pos <= 3 THEN 1 ELSE 0 END) '2nd-3rd',
+    SUM(CASE WHEN pos >= 4 AND pos <= 10 THEN 1 ELSE 0 END) '4th-10th',
+    SUM(CASE WHEN pos >= 11 AND pos <= 20 THEN 1 ELSE 0 END) '11th-20th',
+    SUM(CASE WHEN pos >= 21 AND pos <= 50 THEN 1 ELSE 0 END) '21st-50th',
+    SUM(CASE WHEN pos >50 THEN 1 ELSE 0 END) '50th+',
+    count(distinct searchquery)
+  FROM (
+ SELECT 
+  YEARWEEK(querydate,3) 'week',
+  searchquery,
+  FLOOR(SUM(impressions*avgposition)/SUM(impressions)) pos
+ FROM [database].[table]
+ GROUP BY 
+  YEARWEEK(querydate,3), searchquery
+ ) d
+GROUP BY
+ week
+;
