@@ -1,0 +1,23 @@
+SELECT
+	a.searchquery,
+    c.impressions-SUM(a.impressions) AS 'Difference, Impressions',
+    SUM(a.impressions) AS 'Original Impressions',
+    c.impressions AS 'Current Impressions',
+    c.clicks-SUM(a.clicks) AS 'Difference, Clicks',
+    SUM(a.clicks) AS 'Original Clicks',
+    c.clicks AS 'Current Clicks'
+FROM gsc.bvvs a
+LEFT JOIN (SELECT
+	searchquery,
+    SUM(impressions) impressions,
+    SUM(clicks) clicks
+    FROM gsc.bvvs b WHERE YEARWEEK(querydate,3) = 201641 
+    GROUP BY searchquery) c
+	ON a.searchquery = c.searchquery
+WHERE 
+	YEARWEEK(querydate,3) = 201622
+GROUP BY 
+	searchquery
+ORDER BY SUM(c.impressions)-SUM(a.impressions) ASC
+LIMIT 0,10000000
+;
